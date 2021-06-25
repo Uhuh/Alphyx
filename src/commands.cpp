@@ -2,9 +2,9 @@
 
 #include <cppconn/prepared_statement.h>
 
-#include <ping.hpp>
-#include <pong.hpp>
-#include <join_role.hpp>
+#include <general/ping.hpp>
+#include <general/pong.hpp>
+#include <reactions/join_role.hpp>
 
 int Command::commandsRan = 0;
 
@@ -14,8 +14,6 @@ int Command::commandsRan = 0;
  * @param words AAAAAAAAAAAAA
  */
 void JoinRoleCommand::command_exec(const dpp::message_create_t &event, std::vector<std::string> &words) const {
-  Client::log(LogType::INFO, "Attempting to do joinrole command");
-
   if (words.empty()) {
     client->message(event, "Hey listen! You forgot some parameters.", dpp::mt_reply);
     return;
