@@ -39,9 +39,6 @@ void Client::loadJoinRoles() {
   dpp::cache *guild_cache = dpp::get_guild_cache();
   dpp::cache_container &gc = guild_cache->get_container();
 
-  dpp::cache *r_cache = dpp::get_role_cache();
-  role_cache = std::make_shared<dpp::cache_container>(r_cache->get_container());
-
   std::vector<uint64_t> roleIds;
 
   con->setSchema("beta");

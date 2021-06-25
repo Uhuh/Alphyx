@@ -31,8 +31,18 @@ class Command {
             std::vector<std::string> & words
     ) const = 0;
 
-    virtual bool can_run(const dpp::message_create_t & event) const {
-      return true;
+    [[nodiscard]] virtual bool can_run(const dpp::message_create_t & event) const {
+      bool hasPerms = false;
+
+      for (const uint64_t r: event.msg->member.roles) {
+        dpp::role *role = dpp::find_role(r);
+        if (role != nullptr && (role->permissions & permission) == permission) {
+          hasPerms = true;
+          break;
+        }
+      }
+
+      return hasPerms;
     }
 
   public:
@@ -44,10 +54,12 @@ class Command {
     ): m_name(std::move(name)),
        m_description(std::move(desc)),
        command_type(type),
-       client(_client) {}
+       client(_client),
+       permission(dpp::role_permissions::p_send_messages) {}
     
     std::string m_name;
     std::string m_description;
+    uint32_t permission;
     CommandType command_type;
 
     /**
