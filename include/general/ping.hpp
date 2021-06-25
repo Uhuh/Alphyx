@@ -9,8 +9,6 @@ class PingCommand: public Command {
       const dpp::message_create_t & event,
       std::vector<std::string> & words
     ) const override {
-      //client->createJoinRole(event.msg->guild_id, 713445565547020399, "☺");
-
       client->message(event, "Ping pong! I work.. I think?");
     }
   public:

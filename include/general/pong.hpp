@@ -9,7 +9,7 @@ class PongCommand: public Command {
       const dpp::message_create_t & event,
       std::vector<std::string> & words
     ) const override {
-      client->message(event, "Going to throw error....");
+      client->message(event, "This command throws an error to test command error handling... I mean PONG~!");
 
       throw std::string("Pong encountered some error!!!!!!!!!!");
     }
