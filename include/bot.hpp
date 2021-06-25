@@ -42,15 +42,15 @@ class Client {
       delete res;
     }
 
+    /**
+     * Keep general guild information in memory so we don't need to constantly query the DB.
+     */
     std::unordered_map<uint64_t, std::vector<uint64_t>> join_roles;
-
-    //std::unordered_map<uint64_t, std::vector<
 
     /**
      * D++'s bot client. It is the main driver.
      */
     std::shared_ptr<dpp::cluster> cluster;
-    std::shared_ptr<dpp::cache_container> role_cache;
 
     /**
      * Ugly pointers required for the MySQL connection stuff
