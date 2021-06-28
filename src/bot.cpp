@@ -75,6 +75,8 @@ void Client::createJoinRole(uint64_t guildId, uint64_t roleId, const std::string
     const std::string errorMessage = "Failed to insert role_id[" + std::to_string(roleId) + "] for guild_id[" + std::to_string(guildId) + "]";
     Client::log(LogType::ERROR, errorMessage);
   }
+
+  delete prep_stmt;
 }
 
 void Client::createMessageButton(

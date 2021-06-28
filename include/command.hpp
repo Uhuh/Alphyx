@@ -31,7 +31,12 @@ class Command {
             std::vector<std::string> & words
     ) const = 0;
 
-    [[nodiscard]] virtual bool can_run(const dpp::message_create_t & event) const {
+    /**
+     * Check if a user has the correct perms to run a command.
+     * @param event message event to grab user roles from.
+     * @return true/false based on if user has correct perms.
+     */
+    [[nodiscard]] inline virtual bool can_run(const dpp::message_create_t & event) const {
       bool hasPerms = false;
 
       for (const uint64_t r: event.msg->member.roles) {
