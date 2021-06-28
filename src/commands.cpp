@@ -1,10 +1,9 @@
 #include <bot.hpp>
 
-#include <cppconn/prepared_statement.h>
-
 #include <general/ping.hpp>
 #include <general/pong.hpp>
 #include <general/join-role.hpp>
+
 #include <category/category-create.h>
 
 int Command::commandsRan = 0;

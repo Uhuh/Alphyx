@@ -1,4 +1,6 @@
-#include <general/join-role.hpp
+#include <bot.hpp>
+#include <cppconn/prepared_statement.h>
+#include <general/join-role.hpp>
 
 /**
  *
