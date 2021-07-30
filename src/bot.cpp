@@ -3,6 +3,22 @@
 #include "mysql_connection.h"
 #include <cppconn/prepared_statement.h>
 
+void Client::slashCommandHandler() {
+  this->cluster->on_interaction_create([&](const dpp::interaction_create_t & event) {
+    if (event.command.type == dpp::it_application_command) {
+      dpp::command_interaction cmd_data = std::get<dpp::command_interaction>(event.command.data);
+
+      std::shared_ptr<Command> slash_command = this->slash_command_list.at(cmd_data.name);
+
+      if (!slash_command) return;
+
+      slash_command->slash_run(event, cmd_data.name);
+    }
+  });
+
+  Client::log(LogType::INFO, "Finished setting up slash command handler.");
+}
+
 void Client::connectDb(const std::string &db) {
   try {
     Client::log(LogType::INFO, "Attempt to connect to SQL DB");
@@ -77,29 +93,6 @@ void Client::createJoinRole(uint64_t guildId, uint64_t roleId, const std::string
   }
 
   delete prep_stmt;
-}
-
-void Client::createMessageButton(
-  const dpp::message_create_t & event,
-  const std::string & content,
-  const std::string & label, 
-  const std::string & emoji,
-  const dpp::component_style & style,
-  const std::string & id
-) const {
-  const std::string user_id = std::to_string(event.msg->author->id);
-  
-  // Just wanted to remove this bulky mess from being called 20 times.
-  cluster->message_create(
-    dpp::message(event.msg->channel_id, content).add_component(
-      dpp::component().add_component(
-        dpp::component().set_label(label)
-          .set_emoji(emoji)
-          .set_style(style)
-          .set_id(id + user_id)
-      )
-    )
-  );
 }
 
 void Client::setPresence() const {
@@ -205,3 +198,26 @@ void Client::message(const dpp::message_create_t &event, const std::string &cont
   }
 }
 
+/**
+ * @TODO - To attach buttons to embeds, use an ENUM to identify which command is being used
+ * @TODO - to determine which buttons to add and how to process them.
+ */
+void Client::message(
+  const dpp::message_create_t & event,
+  dpp::embed & embed,
+  std::function<void(const dpp::confirmation_callback_t&)> cb
+) const {
+  try {
+    cluster->message_create(
+      dpp::message(
+        event.msg->channel_id,
+        embed
+      ),
+      std::move(cb)
+    );
+  } catch (std::exception &e) {
+    Client::log(LogType::ERROR, "============ Message sending error start ============");
+    Client::log(LogType::ERROR, e.what());
+    Client::log(LogType::ERROR, "============  Message sending error end  ============");
+  }
+}

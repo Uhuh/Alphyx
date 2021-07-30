@@ -3,12 +3,23 @@
 
 #include <command.hpp>
 #include <dpp/dpp.h>
+#include <dpp/message.h>
 #include <dpp/nlohmann/json.hpp>
 #include <unordered_map>
 #include <utility>
 #include <cppconn/driver.h>
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
+
+enum Colors {
+    AQUA = 0x00FFFF,
+    BLACK = 0x000000,
+    WHITE = 0xFFFFFF,
+    YELLOW = 0xFFFF00,
+    RED = 0xFF0000,
+    GREEN = 0x00FF00,
+    BLUE = 0x0000FF,
+};
 
 enum LogType {
     ERROR = 0,
@@ -31,6 +42,7 @@ class Client {
       onMessage();
       commandsInit();
       onButtonClicked();
+      slashCommandHandler();
     }
 
     ~Client() {
@@ -64,6 +76,12 @@ class Client {
      * All commands that the bot has access to.
      */
     std::unordered_map<std::string, std::shared_ptr<Command>> command_list;
+    std::unordered_map<std::string, std::shared_ptr<Command>> slash_command_list;
+
+    /**
+     * Check all events and find a slash command that correlates with the interaction
+     */
+    void slashCommandHandler();
 
     /**
      * Connect to given DB
@@ -78,6 +96,17 @@ class Client {
       const dpp::message_create_t &event,
       const std::string &content,
       dpp::message_type type = dpp::message_type::mt_default
+    ) const;
+
+    /**
+     * Send a Discord embed.
+     * @param event
+     * @param embed
+     */
+    void message(
+      const dpp::message_create_t & event,
+      dpp::embed & embed,
+      std::function<void(const dpp::confirmation_callback_t&)> cb = [](const dpp::confirmation_callback_t & e){}
     ) const;
 
     /**
@@ -106,24 +135,6 @@ class Client {
      * @param emojiId
      */
     void createJoinRole(uint64_t guildId, uint64_t roleId, const std::string& emojiId) const;
-
-    /**
-     * Create and send a button. dpp::component
-     * @param event Message event
-     * @param content Message to send for button to attach to.
-     * @param label Button label
-     * @param emoji Emoji used inside button
-     * @param style Color of button
-     * @param id User ID to identify button when clicked.
-     */
-    void createMessageButton(
-      const dpp::message_create_t & event,
-      const std::string & content,
-      const std::string & label, 
-      const std::string & emoji,
-      const dpp::component_style & style,
-      const std::string & id
-    ) const;
 
     /**
      * Set bots presence to DND and "Listening"
