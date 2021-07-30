@@ -8,6 +8,7 @@
 #include <vector>
 #include <iterator>
 #include <iostream>
+#include <dpp/fmt/format.h>
 
 class Client;
 
@@ -78,6 +79,11 @@ class Command {
       command_exec(event, words);
 
       commandsRan++;
+    }
+
+    inline void slash_run(const dpp::interaction_create_t & event, const std::string& name) {
+      const std::string cmd_name = std::get<std::string>(event.get_parameter(name));
+      event.reply(dpp::ir_channel_message_with_source, fmt::format("Hiya! You ran... {}", cmd_name));
     }
 
     /**
