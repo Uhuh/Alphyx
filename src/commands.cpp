@@ -10,10 +10,13 @@ int Command::commandsRan = 0;
 
 void Client::commandsInit() {
   command_list = {
-    { "ping", std::make_shared<PingCommand>(this) },
     { "pong", std::make_shared<PongCommand>(this) },
     { "join-role", std::make_shared<JoinRoleCommand>(this) },
     { "category-create", std::make_shared<CategoryCreateCommand>(this) }
+  };
+
+  slash_command_list = {
+    { "ping", std::make_shared<PingCommand>(this) },
   };
 }
 
