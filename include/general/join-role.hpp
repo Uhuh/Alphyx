@@ -3,12 +3,12 @@
 
 #include <command.hpp>
 
-class JoinRoleCommand: public Command {
+class JoinRoleCommand: public MessageCommand {
   protected:
-    void command_exec(const dpp::message_create_t &event, std::vector<std::string> &words) const override;
+    void command_exec(const dpp::message_create_t &event, std::vector<std::string> &words) const;
 
   public:
-    explicit JoinRoleCommand(Client *bot): Command(
+    explicit JoinRoleCommand(Client *bot): MessageCommand(
       bot,
       CommandType::REACTION,
       "join-role",

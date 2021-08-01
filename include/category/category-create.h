@@ -1,14 +1,14 @@
 #ifndef ALPHYX_CATEGORY_CREATE_H
 #define ALPHYX_CATEGORY_CREATE_H
 
-#include <command.hpp>
+#include <message-command.hpp>
 
-class CategoryCreateCommand : public Command {
+class CategoryCreateCommand : public MessageCommand {
   protected:
     void command_exec(const dpp::message_create_t & event, std::vector<std::string> & words) const override;
 
   public:
-    explicit CategoryCreateCommand(const Client *bot): Command(
+    explicit CategoryCreateCommand(const Client *bot): MessageCommand(
       bot,
       CommandType::CATEGORY,
       "category-create",

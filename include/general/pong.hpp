@@ -1,9 +1,9 @@
 #ifndef ALPHYX_PONG_H
 #define ALPHYX_PONG_H
 
-#include "command.hpp"
+#include <message-command.hpp>
 
-class PongCommand: public Command {
+class PongCommand: public MessageCommand {
   protected:
     void command_exec(
       const dpp::message_create_t & event,
@@ -14,7 +14,7 @@ class PongCommand: public Command {
       throw std::string("Pong encountered some error!!!!!!!!!!");
     }
   public:
-    explicit PongCommand(Client *bot): Command(
+    explicit PongCommand(Client *bot): MessageCommand(
       bot,
       CommandType::GENERAL,
       "pong",
