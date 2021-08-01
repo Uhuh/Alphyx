@@ -59,7 +59,7 @@ class Command : public CommandBase {
      * Run commands functionality and increase commandRan
      * @param event Message event to break up by spaces.
      */
-    inline void command_run(const T & event, U & content) const override {
+    inline void command_run(const T & event, U & content) const {
       // Prevent users who shouldn't be running these commands.
       if (!can_run(event)) return;
 
