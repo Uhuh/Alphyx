@@ -1,6 +1,6 @@
 #include <bot.hpp>
 #include <thread>
-#include "mysql_connection.h"
+#include <mysql_connection.h>
 #include <cppconn/prepared_statement.h>
 
 void Client::slashCommandHandler() {
@@ -8,11 +8,11 @@ void Client::slashCommandHandler() {
     if (event.command.type == dpp::it_application_command) {
       dpp::command_interaction cmd_data = std::get<dpp::command_interaction>(event.command.data);
 
-      std::shared_ptr<Command> slash_command = this->slash_command_list.at(cmd_data.name);
+      std::shared_ptr<SlashCommand> slash_command = this->slash_command_list.at(cmd_data.name);
 
       if (!slash_command) return;
 
-      slash_command->slash_run(event, cmd_data.name);
+      slash_command->run(event, cmd_data.name);
     }
   });
 
@@ -51,7 +51,6 @@ void Client::log(const LogType type, const std::string &message) {
 
 void Client::loadJoinRoles() {
   Client::log(LogType::INFO, "Loading join roles...");
-  usleep(1000000);
   dpp::cache *guild_cache = dpp::get_guild_cache();
   dpp::cache_container &gc = guild_cache->get_container();
 
@@ -116,7 +115,7 @@ void Client::onButtonClicked() const {
 
 void Client::onMessage() const {
   cluster->on_message_create([this](const dpp::message_create_t & event) {
-    std::vector<std::string> content(std::move(Command::content(event)));
+    std::vector<std::string> content(std::move(CommandBase::content(event)));
 
     if (content.empty() ||
         !event.msg->guild_id ||
@@ -130,9 +129,9 @@ void Client::onMessage() const {
     const char prefix = command[0];
     const std::string commandName = command.substr(1);
 
-    if (prefix != '!' || this->command_list.find(commandName) == this->command_list.end()) return;
+    if (prefix != '!' || this->message_command_list.find(commandName) == this->message_command_list.end()) return;
 
-    std::shared_ptr<Command> commandPtr = this->command_list.at(commandName);
+    std::shared_ptr<MessageCommand> commandPtr = this->message_command_list.at(commandName);
     if (!commandPtr) return;
 
     // Remove the command portion since we already parsed it out above.
@@ -163,14 +162,16 @@ void Client::onReady() {
 
     Client::log(LogType::SUCCESS, "Shard [" + std::to_string(event.shard_id) + "] connected successfully.");
     Client::log(LogType::SUCCESS, "Logged in as " + cluster->me.username);
-
-    // Run loads on separate thread to ensure that guild cache is loaded.
-    std::thread t1([this](){
-      loadData();
-    });
-
-    t1.detach();
   });
+
+  // Run loads on separate thread to ensure that guild cache is loaded.
+  std::thread t1([this](){
+      usleep(1000000);
+      commandsInit();
+      loadData();
+  });
+
+  t1.detach();
 }
 
 void Client::message(const dpp::message_create_t &event, const std::string &content, dpp::message_type type) const {

@@ -1,7 +1,6 @@
 #ifndef ALPHYX_BOT_H
 #define ALPHYX_BOT_H
 
-#include <command.hpp>
 #include <dpp/dpp.h>
 #include <dpp/message.h>
 #include <dpp/nlohmann/json.hpp>
@@ -10,6 +9,8 @@
 #include <cppconn/driver.h>
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
+#include <slash-command.h>
+#include <message-command.hpp>
 
 enum Colors {
     AQUA = 0x00FFFF,
@@ -40,7 +41,6 @@ class Client {
       onLog();
       onReady();
       onMessage();
-      commandsInit();
       onButtonClicked();
       slashCommandHandler();
     }
@@ -75,8 +75,8 @@ class Client {
     /**
      * All commands that the bot has access to.
      */
-    std::unordered_map<std::string, std::shared_ptr<Command>> command_list;
-    std::unordered_map<std::string, std::shared_ptr<Command>> slash_command_list;
+    std::unordered_map<std::string, std::shared_ptr<MessageCommand>> message_command_list;
+    std::unordered_map<std::string, std::shared_ptr<SlashCommand>> slash_command_list;
 
     /**
      * Check all events and find a slash command that correlates with the interaction

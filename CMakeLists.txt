@@ -5,7 +5,7 @@ set(BOT_NAME "alphyx")
 
 project(${BOT_NAME})
 aux_source_directory("src" coresrc)
-add_executable(${BOT_NAME} ${coresrc} src/category.cpp include/category/category.h)
+add_executable(${BOT_NAME} ${coresrc})
 
 string(ASCII 27 Esc)
 
