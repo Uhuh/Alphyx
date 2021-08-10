@@ -26,11 +26,9 @@ class PingCommand: public SlashCommand {
             .add_choice(dpp::command_option_choice("Pyng", std::string("pyng")))
         );
 
-      this->client->cluster->global_command_create(command, [](const dpp::confirmation_callback_t & e) {
-          Client::log(LogType::DEBUG, e.type);
-          Client::log(LogType::DEBUG, e.http_info.body);
+      this->client->cluster->global_command_create(command, [&](const auto& e) {
+          this->command_create(e);
       });
-      Client::log(LogType::INFO, "Initialized Ping slash command.");
     }
 
   public:
