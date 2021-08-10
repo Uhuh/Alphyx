@@ -18,6 +18,12 @@ protected:
       return true;
     }
 
+    /**
+     * Use this to detect slash commands failing to be created.
+     * @param e - HTTP response from Discord API, if the slash command was created or not.
+     */
+    void command_create(const dpp::confirmation_callback_t& e);
+
     virtual void slash_command_create() = 0;
 public:
     SlashCommand(const Client *bot, CommandType type , std::string name, std::string desc):
