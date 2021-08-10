@@ -7,7 +7,7 @@
 class SlashJoinRoleCommand: public SlashCommand {
 protected:
     void command_exec(const dpp::interaction_create_t &event, std::string &name) const override {
-      event.reply(dpp::ir_channel_message_with_source, "Join role slash command is up and running.");
+      event.reply(dpp::ir_channel_message_with_source, dpp::message("Join role slash command is up and running.").set_flags(dpp::m_ephemeral));
     }
 
     void slash_command_create() override {

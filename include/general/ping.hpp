@@ -10,7 +10,7 @@ class PingCommand: public SlashCommand {
       const dpp::interaction_create_t & event,
       std::string & content
     ) const override {
-      event.reply(dpp::ir_channel_message_with_source, "Ping pong. I work.. I think?");
+      event.reply(dpp::ir_channel_message_with_source, dpp::message("Ping pong. I work.. I think?").set_flags(dpp::m_ephemeral));
     }
 
     void slash_command_create() override {
