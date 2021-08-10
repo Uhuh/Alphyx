@@ -3,6 +3,7 @@
 #include <general/ping.hpp>
 #include <general/pong.hpp>
 #include <general/join-role.hpp>
+#include <general/slash-join-role.hpp>
 
 #include <category/category-create.h>
 
@@ -17,6 +18,7 @@ void Client::commandsInit() {
 
   slash_command_list = {
     { "ping", std::make_shared<PingCommand>(this) },
+    { "join", std::make_shared<SlashJoinRoleCommand>(this) }
   };
 }
 
