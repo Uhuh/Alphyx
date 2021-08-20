@@ -12,7 +12,7 @@ void Client::slashCommandHandler() {
 
       if (!slash_command) return;
 
-      slash_command->run(event, cmd_data.name);
+      slash_command->run(event);
     }
   });
 
@@ -139,7 +139,7 @@ void Client::onMessage() const {
 
     try {
       Client::log(LogType::DEBUG, "Message content size: " + std::to_string(content.size()));
-      commandPtr->run(event, content);
+      commandPtr->run(event);
     } catch (const std::string &error) {
       Client::log(LogType::ERROR, error);
     }

@@ -6,9 +6,16 @@
 #include <vector>
 #include <iterator>
 #include <iostream>
-#include <base-command.h>
+#include <commands/base-command.h>
 
 class Client;
+
+enum UserPermResponse {
+    has_required_perms,
+    missing_required_perms,
+    user_missing,
+    channel_missing
+};
 
 enum CommandType {
     GENERAL = 0,
@@ -17,16 +24,16 @@ enum CommandType {
     OWNER
 };
 
-template <typename T, typename U>
+template <typename T>
 class Command : public CommandBase {
   protected:
-    const Client *client;
+    Client *client;
     /**
      * Derived classes functionality, the core of the commands.
      * @param event Message event mostly for channel_id
      * @param words Content of message broken up by spaces.
      */
-    virtual void command_exec(const T & event, U & content) const {
+    virtual void command_exec(const T & event) const {
       // Do nothing by default.
       std::cout << "= = = = = = = Command " << m_name << " has not implemented the execute function = = = = = = =" << std::endl;
     }
@@ -36,11 +43,11 @@ class Command : public CommandBase {
      * @param event message event to grab user roles from.
      * @return true/false based on if user has correct perms.
      */
-    virtual bool can_run(const T & event) const = 0;
+    virtual UserPermResponse user_perms(const T & event) const = 0;
 
   public:
     Command(
-      const Client *_client,
+      Client *_client,
       CommandType type,
       std::string name,
       std::string desc = ""
@@ -59,11 +66,11 @@ class Command : public CommandBase {
      * Run commands functionality and increase commandRan
      * @param event Message event to break up by spaces.
      */
-    inline void command_run(const T & event, U & content) const {
+    inline void command_run(const T & event) const {
       // Prevent users who shouldn't be running these commands.
       if (!can_run(event)) return;
 
-      command_exec(event, content);
+      command_exec(event);
 
       commandsRan++;
     }

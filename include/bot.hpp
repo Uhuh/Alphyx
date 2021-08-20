@@ -9,8 +9,8 @@
 #include <cppconn/driver.h>
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
-#include <slash-command.h>
-#include <message-command.hpp>
+#include <commands/slash-command.h>
+#include <commands/message-command.hpp>
 
 enum Colors {
     AQUA = 0x00FFFF,
