@@ -2,7 +2,7 @@
 
 #include <general/ping.hpp>
 #include <general/pong.hpp>
-#include <general/slash-join-role.hpp>
+#include <general/join-role.hpp>
 
 int CommandBase::commandsRan = 0;
 
@@ -13,7 +13,7 @@ void Client::commandsInit() {
 
   slash_command_list = {
     { "ping", std::make_shared<PingCommand>(this) },
-    { "join", std::make_shared<SlashJoinRoleCommand>(this) }
+    { "join", std::make_shared<JoinRoleCommand>(this) }
   };
 }
 

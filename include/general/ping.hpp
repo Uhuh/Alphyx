@@ -1,15 +1,12 @@
 #ifndef ALPHYX_PING_H
 #define ALPHYX_PING_H
 
-#include "command.hpp"
+#include "commands/command.hpp"
 #include <dpp/message.h>
 
 class PingCommand: public SlashCommand {
   protected:
-    void command_exec(
-      const dpp::interaction_create_t & event,
-      std::string & content
-    ) const override {
+    void command_exec(const dpp::interaction_create_t & event) const override {
       event.reply(dpp::ir_channel_message_with_source, dpp::message("Ping pong. I work.. I think?").set_flags(dpp::m_ephemeral));
     }
 
@@ -32,7 +29,7 @@ class PingCommand: public SlashCommand {
     }
 
   public:
-    explicit PingCommand(const Client *bot): SlashCommand(
+    explicit PingCommand(Client *bot): SlashCommand(
       bot,
       CommandType::GENERAL,
       "ping",
