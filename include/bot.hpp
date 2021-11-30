@@ -6,9 +6,7 @@
 #include <dpp/nlohmann/json.hpp>
 #include <unordered_map>
 #include <utility>
-#include <cppconn/driver.h>
-#include <cppconn/resultset.h>
-#include <cppconn/statement.h>
+#include <pqxx/pqxx>
 #include <commands/slash-command.h>
 #include <commands/message-command.hpp>
 
@@ -30,142 +28,122 @@ enum LogType {
 };
 
 class Client {
-  public:
-    explicit Client(std::shared_ptr<dpp::cluster> _cluster): cluster(std::move(_cluster)) {
-
-      // Prepare and connect to db
-      driver = nullptr;
-      connectDb("beta");
-
-      // Load each event handler
-      onLog();
-      onReady();
-      onMessage();
-      onButtonClicked();
-      slashCommandHandler();
-    }
-
-    ~Client() {
-      /**
-       * Have to destroy these, don't wanna lose memory.
-       */
-      delete con;
-      delete stmt;
-      delete res;
-    }
-
+protected:
     /**
-     * Keep general guild information in memory so we don't need to constantly query the DB.
+     * Stuff related to the bot. Database, token etc.
      */
-    std::unordered_map<uint64_t, std::vector<uint64_t>> join_roles;
+    json config;
 
-    /**
-     * D++'s bot client. It is the main driver.
-     */
-    std::shared_ptr<dpp::cluster> cluster;
+public:
+  explicit Client(std::shared_ptr<dpp::cluster> _cluster, json _config, json _response): cluster(std::move(_cluster)), config(std::move(_config)), response(std::move(_response)) {
 
-    /**
-     * Ugly pointers required for the MySQL connection stuff
-     */
-    sql::Driver *driver;
-    sql::Connection *con{};
-    sql::Statement *stmt{};
-    sql::ResultSet *res{};
+    // Text the connection of the postgres on the main server
+    connectDb();
 
-    /**
-     * All commands that the bot has access to.
-     */
-    std::unordered_map<std::string, std::shared_ptr<MessageCommand>> message_command_list;
-    std::unordered_map<std::string, std::shared_ptr<SlashCommand>> slash_command_list;
+    // Load each event handler
+    onLog();
+    onReady();
+    onMessage();
+    onButtonClicked();
+    slashCommandHandler();
+  }
 
-    /**
-     * Check all events and find a slash command that correlates with the interaction
-     */
-    void slashCommandHandler();
+  /**
+   * Big JSON file that will make it easier read large bodies of text instead of having all that text in code.
+   */
+  json response;
 
-    /**
-     * Connect to given DB
-     * @param db: beta | prod database
-     */
-    void connectDb(const std::string &db);
+  /**
+   * Keep general guild information in memory so we don't need to constantly query the DB.
+   */
+  std::unordered_map<uint64_t, std::vector<uint64_t>> join_roles;
 
-    /**
-     * Making messages for this lib is ugly and I need a shortcut
-     */
-    void message(
-      const dpp::message_create_t &event,
-      const std::string &content,
-      dpp::message_type type = dpp::message_type::mt_default
-    ) const;
+  /**
+   * D++'s bot client. It is the main driver.
+   */
+  std::shared_ptr<dpp::cluster> cluster;
 
-    /**
-     * Send a Discord embed.
-     * @param event
-     * @param embed
-     */
-    void message(
-      const dpp::message_create_t & event,
-      dpp::embed & embed,
-      std::function<void(const dpp::confirmation_callback_t&)> cb = [](const dpp::confirmation_callback_t & e){}
-    ) const;
+  /**
+   * All commands that the bot has access to.
+   */
+  std::unordered_map<std::string, std::shared_ptr<MessageCommand>> message_command_list;
+  std::unordered_map<std::string, std::shared_ptr<SlashCommand>> slash_command_list;
 
-    /**
-     * Load all relevant information, like setting up guild cache, db calls, etc.
-     */
-    void loadData() {
-      loadJoinRoles();
-    }
+  /**
+   * Check all events and find a slash command that correlates with the interaction
+   */
+  void slashCommandHandler();
 
-    /**
-     * Load each guilds join roles
-     */
-    void loadJoinRoles();
+  /**
+   * Connect to given DB
+   * @param db: beta | prod database
+   */
+  void connectDb();
 
-    /**
-     * Log any message to console with color!
-     * @param type Helps decide what color is used
-     * @param message Message to log to console
-     */
-    static void log(LogType type, const std::string &message);
+  /**
+   * Making messages for this lib is ugly and I need a shortcut
+   */
+  void message(
+    const dpp::snowflake &channel_id,
+    const dpp::snowflake &message_id,
+    const std::string &content,
+    dpp::message_type type = dpp::message_type::mt_default
+  ) const;
 
-    /**
-     *
-     * @param guildId
-     * @param roleId
-     * @param emojiId
-     */
-    void createJoinRole(uint64_t guildId, uint64_t roleId, const std::string& emojiId) const;
+  /**
+   * Send a Discord embed.
+   * @param event
+   * @param embed
+   */
+  void message(
+    const dpp::snowflake &channel_id,
+    dpp::embed & embed,
+    std::function<void(const dpp::confirmation_callback_t&)> cb = [](const dpp::confirmation_callback_t & e){}
+  ) const;
 
-    /**
-     * Set bots presence to DND and "Listening"
-     */
-    void setPresence() const;
+  /**
+   * Log any message to console with color!
+   * @param type Helps decide what color is used
+   * @param message Message to log to console
+   */
+  static void log(LogType type, const std::string &message);
 
-    /**
-     * How to handle buttons that are clicked.
-     * For now just restrict the clicker to be the original button command caller.
-     */
-    void onButtonClicked() const;
+  /**
+   * Set bots presence to DND and "Listening"
+   */
+  void setPresence() const;
 
-    /**
-     * Parse messages and see if it's invoking a command.
-     */
-    void onMessage() const;
+  /**
+   * How to handle buttons that are clicked.
+   * For now just restrict the clicker to be the original button command caller.
+   */
+  void onButtonClicked() const;
 
-    /**
-     * Setup command_list
-     */
-    void commandsInit();
+  /**
+   * Parse messages and see if it's invoking a command.
+   */
+  void onMessage() const;
 
-    /**
-     * Show debug logging in console.
-     */
-    void onLog() const;
+  /**
+   * Setup command_list
+   */
+  void commandsInit();
 
-    /**
-     * Just output some info like the bot has logged in correctly.
-     */
-    void onReady();
+  /**
+   * Show debug logging in console.
+   */
+  void onLog() const;
+
+  /**
+   * Get the current configs Postgres options.
+   * @return string that contains postgres host information
+   */
+  std::string getPostgresConfig() { return this->config["postgresOptions"]; }
+
+  /**
+   * Just output some info like the bot has logged in correctly.
+   */
+  void onReady();
 };
 
 #endif
