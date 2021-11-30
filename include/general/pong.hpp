@@ -8,7 +8,11 @@ class PongCommand: public MessageCommand {
     void command_exec(
       const dpp::message_create_t & event
     ) const override {
-      client->message(event, "This command throws an error to test command error handling... I mean PONG~!");
+      client->message(
+        event.msg->channel_id,
+        event.msg->id,
+        "This command throws an error to test command error handling... I mean PONG~!"
+      );
 
       dpp::embed embed;
 
@@ -25,27 +29,6 @@ class PongCommand: public MessageCommand {
                 .set_id("811680018698600478")
             )
           )
-          .add_component(
-          dpp::component().add_component(
-            dpp::component().set_label("The real that one guy")
-              .set_style(dpp::cos_secondary)
-              .set_id("8116800186986004782")
-          )
-        )
-        .add_component(
-          dpp::component().add_component(
-            dpp::component().set_label("The real that one guy")
-              .set_style(dpp::cos_primary)
-              .set_id("811680018698600478d")
-          )
-        )
-        .add_component(
-          dpp::component().add_component(
-            dpp::component().set_label("The real that one guy")
-              .set_style(dpp::cos_secondary)
-              .set_id("811680018698600478s")
-          )
-        )
       );
 
       dpp::message m(event.msg->channel_id, "Select a role from the dropdown below.");
@@ -54,9 +37,6 @@ class PongCommand: public MessageCommand {
           dpp::component().set_type(dpp::cot_selectmenu)
             .set_placeholder("Select role")
             .add_select_option(dpp::select_option("The real that one guy", "8116800186598600478s", "Self role"))
-            .add_select_option(dpp::select_option("The real that one guy1", "8116800184698600478s", "Self role"))
-            .add_select_option(dpp::select_option("The real that one guy2", "8116800186398600478s", "Self role"))
-            .add_select_option(dpp::select_option("The real that one guy3", "8116180018698600478s", "Self role"))
             .set_id("select34rtrwetwre")
           )
         );
