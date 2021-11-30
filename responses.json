@@ -1,0 +1,27 @@
+{
+  "HELLO:WORLD": "Hello world I'm alive.",
+  "ADOPT:SPIRIT_TYPE1": {
+    "name": "weary",
+    "desc": "While you were walking past an alleyway one day, a {} spirit caught your vision, quickly ducking out of view. You kneel down and offer your patience to the spirit, and in return it allows you to take it home with you!"
+  },
+  "ADOPT:SPIRIT_TYPE2": {
+    "name": "tired",
+    "desc": "During one of your walks, you notice a {} spirit flickering dimly alone. You imagine the exhaustion it must be feeling, and decide to take it home with you to rest!"
+  },
+  "ADOPT:SPIRIT_TYPE3": {
+    "name": "sleepy",
+    "desc": "As you go on one of your daily walks, you notice a spirit sleeping lazily on a patch of grass. You don't mean to disturb it, but upon picking it up, the {} spirit falls right back asleep in your arms, and you decide to carry it home with you!"
+  },
+  "ADOPT:SPIRIT_TYPE4": {
+    "name": "woeful",
+    "desc": "While you were walking at night, you heard the wailing of a {} spirit above you, and paused to listen to it's cries. Comforted by your gesture, the spirit's cries become quiet, and it decides to come home with you!"
+  },
+  "ADOPT:SPIRIT_TYPE5": {
+    "name": "gloomy",
+    "desc": "During one of your walks you stumbled upon a {} spirit, which refused to move it's gaze from the ground. You reach out to the spirit and make a funny face, and it decides to keep you company and  come home with you!"
+  },
+  "ADOPT:SPIRIT_TYPE6": {
+    "name": "sad",
+    "desc": "During a restless night, you open your eyes to find a {} spirit outside your window, looking in at you. You open the window and welcome the spirit in with a hug, and you both feel a little better, so you decide to keep them!"
+  }
+}
