@@ -40,6 +40,8 @@ link_directories(
 target_link_libraries(${BOT_NAME}
     dl
 	mysqlcppconn
+	pqxx
+	pq
     ${CMAKE_THREAD_LIBS_INIT}
     ${DPP_LIBRARIES}
     ${OPENSSL_CRYPTO_LIBRARY} 
