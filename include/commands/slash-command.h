@@ -30,7 +30,7 @@ protected:
      * Use this to detect slash commands failing to be created.
      * @param e - HTTP response from Discord API, if the slash command was created or not.
      */
-    void command_create(const dpp::confirmation_callback_t& e);
+    void command_create(const dpp::confirmation_callback_t& e) const;
 
     /**
      * Setup what options the slash command will have and globally create.
