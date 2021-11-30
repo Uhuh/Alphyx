@@ -2,6 +2,7 @@
 #include <thread>
 #include <mysql_connection.h>
 #include <cppconn/prepared_statement.h>
+#include <pqxx/pqxx>
 
 void Client::slashCommandHandler() {
   this->cluster->on_interaction_create([&](const dpp::interaction_create_t & event) {
@@ -19,19 +20,16 @@ void Client::slashCommandHandler() {
   Client::log(LogType::INFO, "Finished setting up slash command handler.");
 }
 
-void Client::connectDb(const std::string &db) {
-  try {
-    Client::log(LogType::INFO, "Attempt to connect to SQL DB");
+void Client::connectDb() {
+  Client::log(LogType::INFO, "Testing if server is accepting Postgres connection...");
 
-    /* Create a connection */
-    driver = get_driver_instance();
-    con = driver->connect("tcp://127.0.0.1:3306", "root", "");
+  pqxx::connection c (this->getPostgresConfig());
 
-    /* Connect to the MySQL test database */
-    con->setSchema(db);
-    Client::log(LogType::SUCCESS, "Successfully connected to " + db );
-  } catch(int e) {
-    Client::log(LogType::ERROR, "Oops, couldn't connect to the DB for some reason.");
+  if (c.is_open()) {
+    Client::log(LogType::SUCCESS, "Connection test successful.");
+  } else {
+    Client::log(LogType::ERROR, "Could not connect to Postgres. Exiting.");
+    throw "Unable to connect to Postgres.";
   }
 }
 
@@ -47,51 +45,6 @@ void Client::log(const LogType type, const std::string &message) {
   }
 
   std::cout << colorType << message << std::endl;
-}
-
-void Client::loadJoinRoles() {
-  Client::log(LogType::INFO, "Loading join roles...");
-  dpp::cache *guild_cache = dpp::get_guild_cache();
-  dpp::cache_container &gc = guild_cache->get_container();
-
-  std::vector<uint64_t> roleIds;
-
-  con->setSchema("beta");
-
-  for (auto &g: gc) {
-    auto* gp = (dpp::guild*)g.second;
-    roleIds = {};
-
-    stmt = con->createStatement();
-    res = stmt->executeQuery("SELECT role_id FROM join_roles WHERE guild_id="+std::to_string(gp->id));
-
-    Client::log(LogType::INFO, "Loading join roles for guild " + std::to_string(gp->id));
-
-    while(res->next()) {
-      roleIds.push_back(res->getInt64(1));
-    }
-
-    join_roles[gp->id] = std::move(roleIds);
-  }
-
-  Client::log(LogType::SUCCESS, "Loaded " + std::to_string(gc.size()) + " guild join_roles");
-}
-
-void Client::createJoinRole(uint64_t guildId, uint64_t roleId, const std::string& emojiId) const {
-  sql::PreparedStatement *prep_stmt;
-
-  try {
-    prep_stmt = con->prepareStatement("INSERT INTO join_roles(guild_id, role_id) VALUES (?, ?)");
-
-    prep_stmt->setBigInt(1, std::to_string(guildId));
-    prep_stmt->setBigInt(2, std::to_string(roleId));
-    prep_stmt->execute();
-  } catch(const int &e) {
-    const std::string errorMessage = "Failed to insert role_id[" + std::to_string(roleId) + "] for guild_id[" + std::to_string(guildId) + "]";
-    Client::log(LogType::ERROR, errorMessage);
-  }
-
-  delete prep_stmt;
 }
 
 void Client::setPresence() const {
@@ -168,27 +121,31 @@ void Client::onReady() {
   std::thread t1([this](){
       usleep(1000000);
       commandsInit();
-      loadData();
   });
 
   t1.detach();
 }
 
-void Client::message(const dpp::message_create_t &event, const std::string &content, dpp::message_type type) const {
+void Client::message(
+  const dpp::snowflake &channel_id,
+  const dpp::snowflake &message_id,
+  const std::string &content,
+  dpp::message_type type
+) const {
   try {
     switch (type) {
       case dpp::mt_default:
         cluster->message_create(dpp::message(
-          event.msg->channel_id,
+          channel_id,
           content,
           type
         ));
         break;
       case dpp::mt_reply:
         // Create message for channel with correct content.
-        dpp::message m(event.msg->channel_id, content);
+        dpp::message m(channel_id, content);
         // Set messages original ref ID so we can reply to the user
-        m.set_reference(event.msg->id).set_type(dpp::mt_reply);
+        m.set_reference(message_id).set_type(dpp::mt_reply);
         cluster->message_create(m);
         break;
     }
@@ -204,14 +161,14 @@ void Client::message(const dpp::message_create_t &event, const std::string &cont
  * @TODO - to determine which buttons to add and how to process them.
  */
 void Client::message(
-  const dpp::message_create_t & event,
+  const dpp::snowflake &channel_id,
   dpp::embed & embed,
   std::function<void(const dpp::confirmation_callback_t&)> cb
 ) const {
   try {
     cluster->message_create(
       dpp::message(
-        event.msg->channel_id,
+        channel_id,
         embed
       ),
       std::move(cb)
